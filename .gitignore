@@ -1,0 +1,18 @@
+# XcodeGen 生成的工程不入库
+/*.xcodeproj
+/*.xcworkspace
+
+# 构建产物
+build/
+Payload/
+*.ipa
+
+# Xcode 用户状态
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+
+# 系统与杂项
+.DS_Store
+*.swp
+*~

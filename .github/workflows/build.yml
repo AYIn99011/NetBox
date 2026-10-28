@@ -1,0 +1,42 @@
+name: 打包 IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 构建无签名 IPA
+    runs-on: macos-26
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 选择最新 Xcode（新 SDK 构建，避免旧 SDK 在新系统上走兼容渲染）
+        run: |
+          ls -d /Applications/Xcode_*.app
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        run: xcodegen generate
+
+      - name: 编译 App（无签名）
+        run: |
+          set -euo pipefail
+          xcodebuild -project NetBox.xcodeproj -scheme NetBox -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' build
+
+      - name: 打包 IPA
+        run: |
+          set -euo pipefail
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NetBox.app Payload/
+          zip -r NetBox.ipa Payload
+
+      - name: 上传 IPA 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetBox-ipa
+          path: NetBox.ipa
