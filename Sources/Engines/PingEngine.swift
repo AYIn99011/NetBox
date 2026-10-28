@@ -21,7 +21,7 @@ struct PingSummary {
     /// received > 0 时才有统计意义；字段顺序与 Models.PingStats 的成员wise init 对齐
     var stats: PingStats? {
         guard received > 0, let minMs, let avgMs, let maxMs else { return nil }
-        return PingStats(minMs: minMs, avgMs: avgMs, maxMs: maxMs, lossPercent: lossPercent)
+        return PingStats(minMs: minMs, avgMs: avgMs, maxMs: maxMs, lossPercent: lossPercent, sent: sent)
     }
 }
 

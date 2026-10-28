@@ -101,7 +101,7 @@ struct HistorySectionView: View {
                                 .lineLimit(1)
                                 .truncationMode(.middle)
                             HStack(spacing: 6) {
-                                Text(rec.date.formatted(date: .abbreviated, time: .shortened))
+                                Text(formatDateTime(rec.date))
                                 Text(rec.summary)
                                     .lineLimit(1)
                                     .truncationMode(.tail)

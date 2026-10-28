@@ -43,6 +43,8 @@ struct PingStats: Codable {
     var avgMs: Double
     var maxMs: Double
     var lossPercent: Double
+    /// 发送次数；可选是为了兼容没有这个字段的旧存档记录
+    var sent: Int? = nil
 
     func summaryText() -> String {
         String(format: "最低 %.1fms · 平均 %.1fms · 最高 %.1fms · 丢包 %.0f%%",

@@ -86,3 +86,16 @@ func formatDuration(_ seconds: Double) -> String {
     }
     return String(format: "%.1fs", seconds)
 }
+
+/// 全 App 统一时间显示：yyyy-MM-dd HH:mm:ss，固定东八区，不随系统地区格式变样
+private let dateTimeFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.timeZone = TimeZone(secondsFromGMT: 8 * 3600)
+    f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    return f
+}()
+
+func formatDateTime(_ date: Date) -> String {
+    dateTimeFormatter.string(from: date)
+}

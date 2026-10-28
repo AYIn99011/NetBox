@@ -19,12 +19,15 @@ struct RecordDetailView: View {
             Section("概览") {
                 LabeledContent("工具", value: record.tool.title)
                 LabeledContent("目标", value: record.target)
-                LabeledContent("时间", value: record.date.formatted(date: .abbreviated, time: .standard))
+                LabeledContent("时间", value: formatDateTime(record.date))
                 LabeledContent("摘要", value: record.summary)
             }
 
             if let stats = record.pingStats {
                 Section("Ping 统计") {
+                    if let sent = stats.sent {
+                        LabeledContent("次数", value: "\(sent)")
+                    }
                     LabeledContent("最低延迟", value: formatMs(stats.minMs))
                     LabeledContent("平均延迟", value: formatMs(stats.avgMs))
                     LabeledContent("最高延迟", value: formatMs(stats.maxMs))
