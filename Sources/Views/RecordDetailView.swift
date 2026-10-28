@@ -10,7 +10,9 @@ struct RecordDetailView: View {
     var onRerun: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var historyStore: HistoryStore
     @State private var copied = false
+    @State private var confirmDelete = false
 
     var body: some View {
         List {
@@ -56,5 +58,21 @@ struct RecordDetailView: View {
         }
         .navigationTitle("记录详情")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(role: .destructive) {
+                    confirmDelete = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+            }
+        }
+        .confirmationDialog("删除这条记录？", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("删除", role: .destructive) {
+                historyStore.delete(id: record.id)
+                dismiss()
+            }
+            Button("取消", role: .cancel) {}
+        }
     }
 }

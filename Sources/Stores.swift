@@ -33,6 +33,12 @@ final class HistoryStore: ObservableObject {
         save()
     }
 
+    /// 删除单条记录
+    func delete(id: UUID) {
+        records.removeAll { $0.id == id }
+        save()
+    }
+
     /// 清空某工具的全部历史
     func clear(tool: ToolKind) {
         records.removeAll { $0.tool == tool }
