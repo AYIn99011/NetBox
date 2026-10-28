@@ -6,6 +6,7 @@
 
 <p align="center">
   <img src="docs/home.jpg" width="300" alt="首页">
+  <img src="docs/ping-detail.jpg" width="300" alt="Ping 记录详情">
 </p>
 
 - Ping（次数、包大小、间隔、超时都能调）
