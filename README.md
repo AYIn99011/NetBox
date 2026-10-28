@@ -1,8 +1,12 @@
 # NetBox
 
-iOS 网络工具箱，SwiftUI 写的，没引任何第三方库。
+自己用的 iOS 网络工具箱，SwiftUI 写的，没引任何第三方库。
 
 起因是排查网络问题时手边只有手机，索性把常用的几个小工具凑一块了：
+
+<p align="center">
+  <img src="docs/home.jpg" width="300" alt="首页">
+</p>
 
 - Ping（次数、包大小、间隔、超时都能调）
 - 路由轨迹
