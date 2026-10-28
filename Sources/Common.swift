@@ -2,6 +2,8 @@
 // 主机名解析、ICMP 校验和、时间格式化等共用小工具
 
 import Foundation
+import Network
+import CoreTelephony
 
 /// 基于 getaddrinfo 的主机名解析
 enum HostResolver {
@@ -98,4 +100,55 @@ private let dateTimeFormatter: DateFormatter = {
 
 func formatDateTime(_ date: Date) -> String {
     dateTimeFormatter.string(from: date)
+}
+
+/// 当前网络状态：抓系统默认路径判断 WiFi/有线/蜂窝，蜂窝再分 5G/4G。
+/// 注意：这反映的是系统默认路径，开着 TUN 代理时和实际出口可能对不上，只能当参考。
+enum NetworkState {
+    static func currentLabel() async -> String {
+        guard let path = await probePath(), path.status == .satisfied else { return "未知" }
+        if path.usesInterfaceType(.wifi) { return "WiFi" }
+        if path.usesInterfaceType(.wiredEthernet) { return "有线" }
+        if path.usesInterfaceType(.cellular) { return cellularLabel() }
+        return "未知"
+    }
+
+    /// NWPathMonitor 拿一次当前路径就关；1.5 秒没回调就用 currentPath 兜底，保证不挂死
+    private static func probePath() async -> NWPath? {
+        await withCheckedContinuation { (cont: CheckedContinuation<NWPath?, Never>) in
+            let monitor = NWPathMonitor()
+            let gate = ResumeGate { p in cont.resume(returning: p) }
+            monitor.pathUpdateHandler = { p in
+                gate.fire(p)
+                monitor.cancel()
+            }
+            monitor.start(queue: DispatchQueue(label: "netbox.pathprobe"))
+            DispatchQueue.global().asyncAfter(deadline: .now() + 1.5) {
+                gate.fire(monitor.currentPath)
+                monitor.cancel()
+            }
+        }
+    }
+
+    private static func cellularLabel() -> String {
+        let info = CTTelephonyNetworkInfo()
+        guard let tech = info.serviceCurrentRadioAccessTechnology?.values.first else { return "蜂窝" }
+        if tech == CTRadioAccessTechnologyNR || tech == CTRadioAccessTechnologyNRNSA { return "5G" }
+        if tech == CTRadioAccessTechnologyLTE { return "4G" }
+        return "蜂窝"
+    }
+}
+
+/// 只允许 resume 一次的小闸门（monitor 回调和超时兜底赛跑时用）
+private final class ResumeGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var fired = false
+    private let body: (NWPath?) -> Void
+    init(_ body: @escaping (NWPath?) -> Void) { self.body = body }
+    func fire(_ path: NWPath?) {
+        lock.lock(); defer { lock.unlock() }
+        if fired { return }
+        fired = true
+        body(path)
+    }
 }

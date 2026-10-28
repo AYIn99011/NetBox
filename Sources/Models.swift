@@ -45,6 +45,8 @@ struct PingStats: Codable {
     var lossPercent: Double
     /// 发送次数；可选是为了兼容没有这个字段的旧存档记录
     var sent: Int? = nil
+    /// 运行时的网络状态（WiFi / 5G / 4G 等），同样为兼容旧存档而可选
+    var network: String? = nil
 
     func summaryText() -> String {
         String(format: "最低 %.1fms · 平均 %.1fms · 最高 %.1fms · 丢包 %.0f%%",

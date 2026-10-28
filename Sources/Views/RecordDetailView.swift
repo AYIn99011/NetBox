@@ -28,6 +28,9 @@ struct RecordDetailView: View {
                     if let sent = stats.sent {
                         LabeledContent("次数", value: "\(sent)")
                     }
+                    if let network = stats.network {
+                        LabeledContent("网络", value: network)
+                    }
                     LabeledContent("最低延迟", value: formatMs(stats.minMs))
                     LabeledContent("平均延迟", value: formatMs(stats.avgMs))
                     LabeledContent("最高延迟", value: formatMs(stats.maxMs))

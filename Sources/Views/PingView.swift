@@ -31,6 +31,7 @@ final class PingViewModel: ObservableObject {
         let runInterval = intervalSeconds
         let runTimeout = timeoutSeconds
         task = Task {
+            let network = await NetworkState.currentLabel()
             let summary = await PingEngine.run(host: host, count: runCount,
                                                payloadSize: runSize,
                                                timeoutSeconds: runTimeout,
@@ -43,10 +44,12 @@ final class PingViewModel: ObservableObject {
                 guard let self else { return }
                 self.isRunning = false
                 if let summary {
-                    self.stats = summary.stats
+                    var finalStats = summary.stats
+                    finalStats?.network = network
+                    self.stats = finalStats
                     // 引擎 lines 与最终 output 一致，用 lines 落盘最稳妥
                     let summaryText: String
-                    if let s = summary.stats {
+                    if let s = finalStats {
                         summaryText = s.summaryText()
                     } else {
                         summaryText = "发送 \(summary.sent)，接收 \(summary.received)，丢包 \(String(format: "%.1f", summary.lossPercent))%"
@@ -56,7 +59,7 @@ final class PingViewModel: ObservableObject {
                         target: host,
                         summary: summaryText,
                         fullOutput: summary.lines.joined(separator: "\n"),
-                        pingStats: summary.stats))
+                        pingStats: finalStats))
                 } else {
                     // 硬错误（解析失败等）：引擎已把原因写进输出行，一并存档便于回看
                     self.historyStore?.add(HistoryRecord(
