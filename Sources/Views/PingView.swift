@@ -26,7 +26,7 @@ final class PingViewModel: ObservableObject {
         output = []
         stats = nil
         isRunning = true
-        let runCount = count
+        let runCount = min(max(count, 1), 1000)
         let runSize = payloadSize
         let runInterval = intervalSeconds
         let runTimeout = timeoutSeconds
@@ -99,12 +99,32 @@ struct PingView: View {
                     .autocorrectionDisabled(true)
                     .keyboardType(.URL)
                     .disabled(vm.isRunning)
-                Stepper(value: $vm.count, in: 1...100) {
-                    Text("次数：\(vm.count)")
+                HStack {
+                    Text("次数")
+                    Spacer()
+                    TextField("10", value: $vm.count, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 90)
+                        .onChange(of: vm.count) { _, v in
+                            vm.count = min(max(v, 1), 1000)
+                        }
+                    Text("次")
+                        .foregroundStyle(.secondary)
                 }
                 .disabled(vm.isRunning)
-                Stepper(value: $vm.payloadSize, in: 16...1472, step: 16) {
-                    Text("包大小：\(vm.payloadSize) 字节")
+                HStack {
+                    Text("包大小")
+                    Spacer()
+                    TextField("56", value: $vm.payloadSize, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 90)
+                        .onChange(of: vm.payloadSize) { _, v in
+                            vm.payloadSize = min(max(v, 16), 1472)
+                        }
+                    Text("字节")
+                        .foregroundStyle(.secondary)
                 }
                 .disabled(vm.isRunning)
                 Stepper(value: $vm.intervalSeconds, in: 0.2...5.0, step: 0.2) {
